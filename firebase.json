@@ -1,0 +1,1 @@
+{"hosting":{"public":"build/web","ignore":["firebase.json","**/.*","**/node_modules/**"],"rewrites":[{"source":"**","destination":"/index.html"}]},"flutter":{"platforms":{"dart":{"lib/firebase_options.dart":{"projectId":"outagamieemergencyapp","configurations":{"web":"1:186697892415:web:aa1d338a9559ef3aa7ee8a","windows":"1:186697892415:web:997adcef688def4aa7ee8a"}}}}}}
