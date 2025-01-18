@@ -111,7 +111,22 @@ class _EventsWidgetState extends State<EventsWidget> {
                 subtitle: Text(
                   '${f.format(event.date)} at ${event.startTime.format(context)}\nLocation: ${event.location}',
                 ),
-                trailing: Text('${event.totalVolunteerHours} needed Volunteers'),
+                trailing: SizedBox(
+                  width: 200.0,
+                  child: Row(
+                    children: [
+                      Text('${event.totalVolunteerHours - event.attendees.length} needed Volunteers'),
+                      IconButton(
+                        icon: const Icon(Icons.delete, color: Colors.black),
+                        iconSize: 36.0,
+                        onPressed: () {
+                          model.deleteEvent(event);
+                        },
+                        tooltip: 'Delete',
+                      ),
+                    ],
+                  ),
+                ),
                 tileColor: isSignedUp ? Colors.green[50] : null,
                 onTap: () => navigate(event),
               );

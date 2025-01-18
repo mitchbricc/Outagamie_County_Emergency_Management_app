@@ -8,6 +8,10 @@ class ChatModel extends ChangeNotifier {
   final _chatsdb = FirebaseDatabase.instance.ref('chats');
   bool isLoaded = false;
 
+  ChatModel(){
+    _listenToEventChanges();
+  }
+
   Future<void> getChat(String eventId, String eventName) async {
     try {
       
@@ -26,6 +30,26 @@ class ChatModel extends ChangeNotifier {
       print(e);
     }
     isLoaded = true;
+  }
+
+  void _listenToEventChanges() {
+    _chatsdb.onValue.listen((DatabaseEvent event) {
+      final data = event.snapshot.value as Map?;
+      if (data != null) {
+        getChat(chat.eventId, chat.eventName);
+        // List<Chat> events = [];
+        // events = data.entries.map((entry) {
+        //   return Chat.fromMap(Map<String, dynamic>.from(entry.value));
+        // }).toList();
+        // events.forEach((c) {
+        //   if(c.eventId == chat.eventId){
+        //     chat = c;
+        //   }
+        // });
+        
+        notifyListeners();
+      }
+    });
   }
 
   Future<void> updateChat(Chat chat) async {

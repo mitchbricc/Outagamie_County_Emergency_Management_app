@@ -1,4 +1,6 @@
 
+import 'dart:convert';
+
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -6,8 +8,10 @@ import 'package:outagamie_emergency_management_app/classes/oncallschedule.dart';
 import '../classes/user.dart';
 
 class OnCallModel extends ChangeNotifier {
+  final _usersdb = FirebaseDatabase.instance.ref('users');
   late User user; 
   List<String> onCallPeople = [];
+  List<User> people = [];
   OnCallSchedule monthOnCallSchedule = OnCallSchedule(month: DateTime.now(), schedule: {});
   List<Map<String, dynamic>> teamMembers = [];
   bool loaded = false;
@@ -18,6 +22,7 @@ class OnCallModel extends ChangeNotifier {
 
 
   Future<void> getPeople() async {
+    await getVolunteers();
     final DatabaseReference ref = FirebaseDatabase.instance.ref('oncall/people');
     final snapshot = await ref.get();
 
@@ -25,6 +30,10 @@ class OnCallModel extends ChangeNotifier {
       onCallPeople = (snapshot.value as List).cast<String>();
     } else {
       print('No data available.');
+    }
+    onCallPeople = [];
+    for(int i =0;i<people.length;i++){
+      onCallPeople.add('${people[i].firstName} ${people[i].lastName}');
     }
     await getCurrentMonth(DateTime.now());
     await getContactInfo();
@@ -45,6 +54,27 @@ class OnCallModel extends ChangeNotifier {
         }
       }
   }
+
+  Future<void> getVolunteers() async {
+  try {
+       Map<String, dynamic> map = {};
+       await _usersdb.get().then((snapshot) {
+        map = Map<String, dynamic>.from(snapshot.value as Map);
+        map.forEach((key, value) async {
+        User user = User.fromMap(jsonDecode(jsonEncode(map[key])));
+        if(user.type == 'admin'){
+          people.add(user);
+        }
+
+        });
+        loaded = true;
+        notifyListeners();
+      });
+    } catch (e) {
+      print(e);
+    }
+
+}
 
   Future<void> getContactInfo() async {
     final DatabaseReference ref = FirebaseDatabase.instance.ref('users');

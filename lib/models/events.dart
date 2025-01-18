@@ -30,6 +30,16 @@ class EventsModel extends ChangeNotifier {
     }
   }
 
+  Future<void> deleteEvent(Event event) async {
+    try {
+      await _db.child(event.id).remove();
+      events.remove(event);
+      notifyListeners();
+    } catch (e) {
+      print(e);
+    }
+  }
+
   Future<void> deleteCat(String category) async {
     final catdb = FirebaseDatabase.instance.ref('categories');
     await getList();
@@ -63,7 +73,7 @@ class EventsModel extends ChangeNotifier {
   if (snapshot.exists) {
     
     final Map<String, dynamic> eventData = Map<String, dynamic>.from(snapshot.value as Map);
-    
+    events = [];
     eventData.forEach((key, value) {
       events.add(Event.fromMap(Map<String, dynamic>.from(value)));
     });
@@ -93,7 +103,7 @@ class EventsModel extends ChangeNotifier {
   Future<void> addEvent(Event event) async {
     final newEventRef = _db.push();
     event.id = newEventRef.key!;
-    await newEventRef.set(event.toMap());
+    await newEventRef.update(event.toMap());
   }
 
   Future<void> signUp(Attendee att, int index, Event event) async {

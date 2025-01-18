@@ -25,7 +25,6 @@ class ContactInfoModel extends ChangeNotifier {
     } catch (e) {
       print(e);
     }
-
-}
+  }
 
 }

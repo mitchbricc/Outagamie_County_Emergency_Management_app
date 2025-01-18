@@ -147,7 +147,6 @@ class _EventDetailWidgetState extends State<EventDetailWidget> {
                           s = e;
                       }
                     }
-                    //return model.events[0];
                   });
                   event = s;
                 });
@@ -190,7 +189,7 @@ class _EventDetailWidgetState extends State<EventDetailWidget> {
                 MaterialPageRoute(
                   fullscreenDialog: true,
                   builder: (context) => ChangeNotifierProvider<AttendenceModel>(
-                    create: (_) => AttendenceModel(), 
+                    create: (_) => AttendenceModel(eventId: event.id), 
                     child: Consumer<AttendenceModel>(
                       builder: (context, model, child) =>
                           AttendanceWidget(model: model, user: widget.user, eventId: event.id, eventName: event.name,),
@@ -216,20 +215,6 @@ class _EventDetailWidgetState extends State<EventDetailWidget> {
                 style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
-              ElevatedButton(onPressed: (){
-                setState(() async {
-                  Event s = event;
-                  await model.getEvents().then((onValue){
-                    for (var e in model.events) {
-                      if(e.id == event.id){
-                          s = e;
-                      }
-                    }
-                    return model.events[0];
-                  });
-                  event = s;
-                });
-              }, child: const Text('data')),
               Text("Date: ${f.format(event.date)}"),
               Text("Time: ${todToString(event.startTime)} - ${todToString(event.endTime)}"),
               Text("Location: ${event.location}"),

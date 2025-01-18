@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:outagamie_emergency_management_app/classes/user.dart';
 import 'package:outagamie_emergency_management_app/models/oncall.dart';
 
 class OnCallWidget extends StatefulWidget {
   final OnCallModel model;
-  final User user;
-  const OnCallWidget({super.key, required this.model, required this.user});
+  const OnCallWidget({super.key, required this.model});
 
 @override
   State<OnCallWidget> createState() => _OnCallWidgetState();
@@ -13,13 +11,11 @@ class OnCallWidget extends StatefulWidget {
 
 class _OnCallWidgetState extends State<OnCallWidget> {
   late OnCallModel model;
-  late User user;
   int pIndex = 0;
 
   @override
   void initState() {
     model = widget.model;
-    user = widget.user;
     super.initState();
   }
 

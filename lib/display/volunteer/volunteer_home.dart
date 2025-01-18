@@ -52,7 +52,7 @@ class _VolunteerHomeState extends State<VolunteerHome> {
         create: (_) => OnCallModel(), 
         child: Consumer<OnCallModel>(
           builder: (context, model, child) =>
-              OnCallWidget(model: model, user: widget.user), 
+              OnCallWidget(model: model), 
         )),
       ChangeNotifierProvider<SettingsModel>(
         create: (_) => SettingsModel(), 

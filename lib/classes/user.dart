@@ -117,7 +117,7 @@ class EventRecord {
     final period = parts[2].toUpperCase() == 'AM' ? DayPeriod.am : DayPeriod.pm;
     TimeOfDay st = TimeOfDay(hour: period == DayPeriod.am ? hour % 12 : hour % 12 + 12, minute: minute);
     
-    final parts2 = map['startTime'].split(RegExp(r'[: ]'));
+    final parts2 = map['endTime'].split(RegExp(r'[: ]'));
     final hour2 = int.parse(parts2[0]);
     final minute2 = int.parse(parts2[1]);
     final period2 = parts2[2].toUpperCase() == 'AM' ? DayPeriod.am : DayPeriod.pm;

@@ -6,7 +6,6 @@ import 'package:provider/provider.dart';
 import '../../classes/event.dart';
 import '../../classes/user.dart';
 import '../../models/events.dart';
-
 class EventsWidget extends StatefulWidget {
   final EventsModel model;
   final User user;
@@ -24,7 +23,7 @@ class _EventsWidgetState extends State<EventsWidget> {
     super.initState();
   }
 
-  List<String> signedUpEvents = [];
+  final List<String> signedUpEvents = [];
 
   bool showOnlySignedUp = false;
 
@@ -53,6 +52,7 @@ class _EventsWidgetState extends State<EventsWidget> {
 
   @override
   Widget build(BuildContext context) {
+    //final filteredEvents = model.events;
     for(int i = 0; i < widget.user.eventRecords.length;i++){
       signedUpEvents.add(widget.user.eventRecords[i].id);
     }
@@ -109,14 +109,21 @@ class _EventsWidgetState extends State<EventsWidget> {
                 subtitle: Text(
                   '${f.format(event.date)} at ${event.startTime.format(context)}\nLocation: ${event.location}',
                 ),
-                trailing: Text('${event.totalVolunteerHours} needed Volunteers'),
+                trailing: SizedBox(
+                  width: 200.0,
+                  child: Row(
+                    children: [
+                      Text('${event.totalVolunteerHours - event.attendees.length} needed Volunteers'),
+                      
+                    ],
+                  ),
+                ),
                 tileColor: isSignedUp ? Colors.green[50] : null,
                 onTap: () => navigate(event),
               );
             },
           ),
         ),
-        const SizedBox(height: 25,)
       ],
     );
   }

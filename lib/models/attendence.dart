@@ -8,10 +8,29 @@ import '../classes/user.dart';
 class AttendenceModel extends ChangeNotifier {
   final _usersdb = FirebaseDatabase.instance.ref('users');
   bool isLoaded = false;
+  String eventId;
   List<Map<String, dynamic>> volunteers = [];
 
+  AttendenceModel({required this.eventId}){
+    
+    getVolunteers(eventId);
+    _listenToEventChanges();
+  }
+
+  void _listenToEventChanges() {
+    final db = FirebaseDatabase.instance.ref('events');
+    db.onValue.listen((DatabaseEvent event) {
+      //getVolunteers(eventId);
+      notifyListeners();
+    });
+    _usersdb.onValue.listen((DatabaseEvent event) {
+      //getVolunteers(eventId);
+      notifyListeners();
+    });
+  }
+
   Future<void> updateAttendence(User user) async {
-    String key = makeFirebaseKeySafe(user.email);
+    String key = makeFirebaseKeySafe(user.email); 
     try {
       _usersdb.update({key:  user.toMap()});
       notifyListeners();
@@ -32,6 +51,7 @@ String todToString(TimeOfDay time, {bool is24HourFormat = false}) {
       : '$hour:$minute ${time.period == DayPeriod.am ? 'AM' : 'PM'}';
   }
 Future<void> getVolunteers(String eventId) async {
+  volunteers = [];
   try {
        Map<String, dynamic> map = {};
        await _usersdb.get().then((snapshot) {
@@ -48,15 +68,15 @@ Future<void> getVolunteers(String eventId) async {
             // };
             var map2 = event.toMap();
 
-            var map = {...map1,...map2};
+            var map3 = {...map1,...map2};
             for (var e in user.eventRecords) {
               if(e.id == eventId){
-                map['startTime'] = e.startTime;
-                map['endTime'] = e.endTime;
+                map3['startTime'] = e.startTime;
+                map3['endTime'] = e.endTime;
               }
             }
              
-            volunteers.add(map);
+            volunteers.add(map3);
           }
         }
       });

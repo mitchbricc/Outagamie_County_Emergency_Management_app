@@ -19,13 +19,7 @@ class AttendanceWidget extends StatefulWidget {
 class _AttendanceWidgetState extends State<AttendanceWidget> {
   @override
   void initState() {
-    model.getVolunteers(eventId).then((onValue){
-      setState(() {
-        
-      });
-    });
-    
-    //model.updateAttendence(user);
+    model.eventId = eventId;
     super.initState();
   }
   final AttendenceModel model;
@@ -58,14 +52,15 @@ class _AttendanceWidgetState extends State<AttendanceWidget> {
     final endInMinutes = endTime.hour * 60 + endTime.minute;
     return (endInMinutes - startInMinutes) / 60.0;
   }
-
+  TimeOfDay? picked;
   // Show time picker to modify start or end time
   Future<void> _selectTime(
       BuildContext context, TimeOfDay initialTime, int index, bool isStartTime) async {
-    final TimeOfDay? picked = await showTimePicker(
+      picked = await showTimePicker(
       context: context,
       initialTime: initialTime,
-    );
+    ) ?? initialTime;
+    true;
     if (picked != null && picked != initialTime) {
       setState(() {
         if (isStartTime) {
@@ -73,11 +68,6 @@ class _AttendanceWidgetState extends State<AttendanceWidget> {
         } else {
           model.volunteers[index]['endTime'] = picked;
         }
-        // Recalculate total hours
-        model.volunteers[index]['totalHours'] = _calculateTotalHours(
-          model.volunteers[index]['startTime'],
-          model.volunteers[index]['endTime'],
-        );
       });
     }
   }
@@ -197,14 +187,37 @@ class _AttendanceWidgetState extends State<AttendanceWidget> {
                               children: [
                                 IconButton(
                                   icon: const Icon(Icons.edit),
-                                  onPressed: () => _selectTime(
-                                      context, volunteer['startTime'], index, true),
+                                  onPressed: () async {
+                                    await _selectTime(
+                                      context, volunteer['startTime'], index, true);
+                                      User u = User.fromMap(volunteer);
+                                      u.eventRecords.forEach((r) {
+                                        if(r.id == eventId){
+                                          r.startTime = volunteer['StartTime'];
+                                          // Recalculate total hours
+                                          u.totalHours = _calculateTotalHours(
+                                            model.volunteers[index]['startTime'],
+                                            model.volunteers[index]['endTime'],
+                                          );
+                                        }
+                                      });
+                                    model.updateAttendence(u);
+                                  },
                                   tooltip: 'Edit Start Time',
                                 ),
                                 IconButton(
                                   icon: const Icon(Icons.edit),
-                                  onPressed: () => _selectTime(
-                                      context, volunteer['endTime'], index, false),
+                                  onPressed: () {
+                                    _selectTime(
+                                      context, volunteer['endTime'], index, false);
+                                    User u = User.fromMap(volunteer);
+                                    u.eventRecords.forEach((r) {
+                                        if(r.id == eventId){
+                                          r.endTime = volunteer['endTime'];
+                                        }
+                                      });
+                                    model.updateAttendence(u);
+                                  },
                                   tooltip: 'Edit End Time',
                                 ),
                               ],

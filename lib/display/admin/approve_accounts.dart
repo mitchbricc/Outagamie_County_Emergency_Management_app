@@ -1,5 +1,6 @@
 // ignore_for_file: no_logic_in_create_state
 
+import 'package:bcrypt/bcrypt.dart';
 import 'package:flutter/material.dart';
 
 import '../../classes/user.dart';
@@ -67,7 +68,14 @@ class _ApproveAccountsWidgetState extends State<ApproveAccountsWidget> {
                     u.isApproved = true;
                     model.updateAttendence(u);
                   } else if (action == 'reset password') {
-                    // handle password reset logic here
+                    User u = User.fromMap(account);
+                    u.password = BCrypt.hashpw('password', user.salt);
+                    model.updateUser(user);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Password is set to password'),
+                      ),
+                    );
                   } else if (action == 'make admin') {
                     account['isAdmin'] = true;
                     User u = User.fromMap(account);

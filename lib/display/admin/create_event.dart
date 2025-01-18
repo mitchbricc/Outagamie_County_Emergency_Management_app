@@ -295,7 +295,6 @@ class _CreateEventWidgetState extends State<CreateEventWidget> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   ElevatedButton(onPressed: (){
-                    //number of volunteers
                     if (_volunteersNeededController.text.isNotEmpty) {
                       int? enteredNumber = int.tryParse(_volunteersNeededController.text);
                       if (enteredNumber != null) {
@@ -308,8 +307,9 @@ class _CreateEventWidgetState extends State<CreateEventWidget> {
                       }
                     }
                     if(_selectedDate != null && _startTime != null && _endTime != null){
-                      Event event = Event(id: 'id', name: _nameController.text, date: _selectedDate!, startTime: _startTime!, endTime: _endTime!, location: _locationController.text, description: _descriptionController.text, totalVolunteerHours: _volunteersNeeded!, category: _selectedCategory!, attendees: [], roles: []);
+                      Event event = Event(id: 'id', name: _nameController.text, date: _selectedDate!, startTime: _startTime!, endTime: _endTime!, location: _locationController.text, description: _descriptionController.text, totalVolunteerHours: _volunteersNeeded!, category: _selectedCategory!, attendees: [], roles: roles);
                       model.addEvent(event);
+                      Navigator.pop(context);
                     }
                   }, child: const Text('Create Event')),
                 ],

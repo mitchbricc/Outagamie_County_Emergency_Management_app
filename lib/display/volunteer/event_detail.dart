@@ -145,7 +145,6 @@ class _EventDetailWidgetState extends State<EventDetailWidget> {
                           s = e;
                       }
                     }
-                    //return model.events[0];
                   });
                   event = s;
                 });
@@ -199,20 +198,6 @@ class _EventDetailWidgetState extends State<EventDetailWidget> {
                 style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
-              ElevatedButton(onPressed: (){
-                setState(() async {
-                  Event s = event;
-                  await model.getEvents().then((onValue){
-                    for (var e in model.events) {
-                      if(e.id == event.id){
-                          s = e;
-                      }
-                    }
-                    return model.events[0];
-                  });
-                  event = s;
-                });
-              }, child: const Text('data')),
               Text("Date: ${f.format(event.date)}"),
               Text("Time: ${todToString(event.startTime)} - ${todToString(event.endTime)}"),
               Text("Location: ${event.location}"),

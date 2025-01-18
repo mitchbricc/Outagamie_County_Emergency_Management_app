@@ -114,4 +114,14 @@ Future<User> fetchUser(String key) async {
     return user;
 }
 
+Future<void> updateUser(User user) async {
+    String key = makeFirebaseKeySafe(user.email);
+    try {
+      _usersdb.update({key:  user.toMap()});
+      notifyListeners();
+    } catch (e) {
+      print(e);
+    }
+  }
+
 }

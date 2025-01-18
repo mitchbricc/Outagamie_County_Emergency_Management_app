@@ -1,4 +1,6 @@
 
+import 'dart:convert';
+
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -7,48 +9,76 @@ import '../classes/user.dart';
 
 class ScheduleOnCallModel extends ChangeNotifier {
   late User user; 
+  List<User> people = [];
   List<String> onCallPeople = [];
   OnCallSchedule monthOnCallSchedule = OnCallSchedule(month: DateTime.now(), schedule: {});
   bool loaded = false;
   late Map<String, Color> peopleColor = <String, Color>{};
-  List<Color> colors = [Colors.blue,Colors.red,Colors.green,Colors.purple,Colors.orange];
+  List<Color> colors = [];
   Map<DateTime, Color> onCallSchedule = {};
 
   ScheduleOnCallModel() {  
     getSchedule();
+    _listenToEventChanges();
+
   }
 
+  Future<void> getPeople() async {
+  try {
+    final usersdb = FirebaseDatabase.instance.ref('users');
+       Map<String, dynamic> map = {};
+       await usersdb.get().then((snapshot) {
+        map = Map<String, dynamic>.from(snapshot.value as Map);
+        people = [];
+        map.forEach((key, value) async {
+        User user = User.fromMap(jsonDecode(jsonEncode(map[key])));
+        if(user.type == 'admin'){
+          people.add(user);
+        }
+
+        });
+        notifyListeners();
+      });
+    } catch (e) {
+      print(e);
+    }
+
+}
 
   Future<void> getSchedule() async {
-    final DatabaseReference ref = FirebaseDatabase.instance.ref('oncall/people');
-    final snapshot = await ref.get();
-
-    if (snapshot.exists && snapshot.value is List) {
-      onCallPeople = (snapshot.value as List).cast<String>();
-    } else {
-      print('No data available.');
+    await getPeople();
+    onCallPeople = [];
+    for(int i = 0;i < people.length;i++){
+      onCallPeople.add('${people[i].firstName} ${people[i].lastName}');
     }
-    for (var i = 0; i < colors.length && i < onCallPeople.length; i++) {
+    _generateColors(onCallPeople.length+1);
+    int i;
+    for (i = 0; i < colors.length && i < onCallPeople.length; i++) {
       peopleColor[onCallPeople[i]] = colors[i];
     }
+    peopleColor['other'] = colors[i];
     await getCurrentMonth(DateTime.now());
-
+    
     loaded = true;
     notifyListeners();
   }
 
-  // void _listenToEventChanges() {
-  //   final _db = FirebaseDatabase.instance.ref('oncall/schedule');
-  //   _db.onValue.listen((DatabaseEvent event) {
-  //     final data = event.snapshot.value as Map?;
-  //     if (data != null) {
-  //       monthlySchedules = data.entries.map((entry) {
-  //         return OnCallSchedule.fromMap(Map<String, dynamic>.from(entry.value));
-  //       }).toList();
-  //       notifyListeners();
-  //     }
-  //   });
-  // }
+  void _generateColors(int count) {
+    final int startingIndex = colors.length;
+    for (int i = 0; i < count; i++) {
+      double hue = (startingIndex + i) * 137.50776405 % 360; // Golden angle approximation
+      colors.add(HSVColor.fromAHSV(1.0, hue, 0.8, 0.8).toColor());
+    }
+  }
+
+  void _listenToEventChanges() {
+    final db = FirebaseDatabase.instance.ref('oncall/schedule');
+    db.onValue.listen((DatabaseEvent event) {
+      loaded = false;
+      getSchedule();
+      notifyListeners();
+    });
+  }
 
   Future<void> addMonthlySchedule(DateTime date) async {
     Map<String,String> map = {};
@@ -74,7 +104,7 @@ class ScheduleOnCallModel extends ChangeNotifier {
       monthOnCallSchedule = OnCallSchedule.fromMap((Map<String, dynamic>.from(data)));
       final f2 = DateFormat('yyyy-MM-dd');
       monthOnCallSchedule.schedule.forEach((key, value){
-          onCallSchedule[f2.parse(key)] = peopleColor[value] ?? Colors.pink[300]!;
+          onCallSchedule[f2.parse(key)] = peopleColor[value] ?? colors[people.length];
         });
     } else {
       onCallSchedule = {};

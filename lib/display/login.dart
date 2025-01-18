@@ -1,11 +1,14 @@
 import 'package:bcrypt/bcrypt.dart';
 import 'package:flutter/material.dart';
 import 'package:outagamie_emergency_management_app/display/volunteer/create_account.dart';
+import 'package:outagamie_emergency_management_app/display/volunteer/oncall_view.dart';
 import 'package:outagamie_emergency_management_app/display/volunteer/volunteer_home.dart';
 import 'package:outagamie_emergency_management_app/display/admin/admin_home.dart';
 import 'package:outagamie_emergency_management_app/models/login.dart';
 import 'package:outagamie_emergency_management_app/models/create_account.dart';
 import 'package:provider/provider.dart';
+
+import '../models/oncall.dart';
 
 class LoginWidget extends StatefulWidget {
   final LoginModel loginModel;
@@ -239,10 +242,16 @@ class _LoginWidgetState extends State<LoginWidget> {
                 )));
   }
   void _forgotPassword() async {
-      ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('A message was sent to the admins. Please contact [Person on call]'),
-              ),
-            );
+      await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  fullscreenDialog: true,
+                  builder: (context) => ChangeNotifierProvider<OnCallModel>(
+        create: (_) => OnCallModel(), 
+        child: Consumer<OnCallModel>(
+          builder: (context, model, child) =>
+              OnCallWidget(model: model), 
+        )),
+        ));
   }
 }
